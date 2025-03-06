@@ -14,10 +14,28 @@ import {
 } from "lucide-react";
 import Cookies from "js-cookie"; // Assuming you're using cookies for auth
 import AIChat from "../components/aichat";
+import { FaMedal } from "react-icons/fa";
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import Dashboard from "../components/dashboard";
+
+// Registering required chart components
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
+const trophies = [
+  { level: "Beginner", color: "#FF9F00" },
+  { level: "Conversationalist", color: "#4CAF50" },
+  { level: "Fluent", color: "#2196F3" },
+  { level: "Polyglot", color: "#9C27B0" },
+  { level: "Master of Vocabulary", color: "#FFC107" },
+  { level: "Grammar Guru", color: "#FF5722" },
+  { level: "Perfect Pronunciation", color: "#8BC34A" },
+  { level: "Cultural Explorer", color: "#03A9F4" }
+];
 
 // Main Dashboard Component
-export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("dashboard");
+export default function DashboardHome() {
+  const [activeTab, setActiveTab] = useState("exercises");
   const [isLoading, setIsLoading] = useState(true); // New state to handle loading
   const router = useRouter();
 
@@ -50,18 +68,13 @@ export default function Dashboard() {
           FluentAI Dashboard
         </h2>
         <nav className="flex flex-col space-y-3">
+          {/* Redirect to /exercise-section for Exercises */}
           <SidebarLink
             icon={<Home size={20} />}
-            label="Dashboard"
-            tab="dashboard"
-            setActiveTab={setActiveTab}
-            isActive={activeTab === "dashboard"}
-          />
-          {/* Redirect to /exercise-section for Exercises */}
-          <SidebarLinkWithRedirect
-            icon={<Book size={20} />}
             label="Exercises"
-            href="/exercise-section"
+            tab="exercises"
+            setActiveTab={setActiveTab}
+            isActive={activeTab === "exercises"}
           />
           <SidebarLink
             icon={<MessageSquare size={20} />}
@@ -102,8 +115,8 @@ export default function Dashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-6">
-        {activeTab === "dashboard" && <DashboardHome />}
+      <main className="flex-1 p-6 overflow-y-auto">
+        {activeTab === "exercises" && <DashboardComponent />}
         {activeTab === "chat" && <ChatAI />}
         {activeTab === "challenges" && <Challenges />}
         {activeTab === "progress" && <Progress />}
@@ -142,15 +155,9 @@ function SidebarLinkWithRedirect({ icon, label, href }) {
 }
 
 // Dashboard Home Component
-function DashboardHome() {
+function DashboardComponent() {
   return (
-    <div>
-      <h2 className="text-3xl font-semibold">Welcome to FluentAI!</h2>
-      <p className="text-gray-600 mt-2">
-        Track your progress, practice with AI, and complete daily exercises.
-      </p>
-      {/* Add more dashboard elements here */}
-    </div>
+    <Dashboard/>
   );
 }
 
@@ -175,23 +182,84 @@ function Challenges() {
 }
 
 function Progress() {
+  const progressData = {
+    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'], // Weeks or milestones
+    datasets: [
+      {
+        label: 'Progress',
+        data: [10, 20, 40, 60, 80, 100], // Progress in percentage (can be dynamic)
+        fill: false,
+        borderColor: '#4CAF50',
+        tension: 0.1, // Makes the line smooth
+        borderWidth: 3,
+        pointRadius: 5,
+        pointBackgroundColor: '#4CAF50',
+      },
+    ],
+  };
+
+  // Options to customize the chart
+  const options = {
+    responsive: true,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Your Language Learning Progress',
+        font: { size: 18 },
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.raw}%`, // Format the tooltip to show progress in percentage
+        },
+      },
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Weeks',
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Progress streak count',
+        },
+        min: 0,
+        max: 100,
+        ticks: {
+          stepSize: 20,
+        },
+      },
+    },
+  };
+
   return (
-    <div>
-      <h2 className="text-2xl font-semibold">Progress</h2>
-      <p className="text-gray-600 mt-2">
-        Track your language learning journey with detailed analytics.
-      </p>
+    <div className="p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-semibold text-black">Learning Progress</h2>
+      <p className="text-gray-600 mt-2">Track your progress in learning the language over time.</p>
+      <div className="mt-6">
+        <Line data={progressData} options={options} />
+      </div>
     </div>
   );
-}
+};
 
 function Achievements() {
   return (
-    <div>
-      <h2 className="text-2xl font-semibold">Achievements</h2>
+    <div className="p-4 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl text-black font-semibold">Achievements</h2>
       <p className="text-gray-600 mt-2">
         Celebrate your milestones and earn badges.
       </p>
+      <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+        {trophies.map((trophy) => (
+          <div key={trophy.level} className="bg-white rounded-lg shadow-lg p-4 flex flex-col items-center">
+            <FaMedal size={50} style={{ color: trophy.color }} />
+            <p className="text-sm font-medium text-gray-600 mt-2">{trophy.level}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

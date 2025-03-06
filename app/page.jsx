@@ -9,7 +9,6 @@ export default function HomePage() {
   const [isMounted, setIsMounted] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
-  
   const router = useRouter();
 
   useEffect(() => {

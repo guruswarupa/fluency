@@ -54,7 +54,7 @@ export default function Navbar() {
         </div>
 
         {/* Auth Buttons */}
-        <div className="hidden xl:flex space-x-3 items-center">
+        <div className="hidden xl:flex space-x-5 items-center">
           {!isAuthenticated ? (
             <>
               <Link
@@ -73,7 +73,7 @@ export default function Navbar() {
           ) : (
             <button
               onClick={handleSignOut}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-base"
+              className="bg-red-600 ml-5 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition text-base"
             >
               Sign Out
             </button>

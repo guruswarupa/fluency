@@ -47,15 +47,15 @@ export default function ContactUs() {
           </h2>
           <div className="flex items-center gap-4">
             <FaPhoneAlt className="text-blue-500 text-xl" />
-            <span className="text-lg">+1 234 567 890</span>
+            <span className="text-lg">+9353238992</span>
           </div>
           <div className="flex items-center gap-4">
             <FaEnvelope className="text-blue-500 text-xl" />
-            <span className="text-lg">contact@yourcompany.com</span>
+            <span className="text-lg">contact@fluency.com</span>
           </div>
           <div className="flex items-center gap-4">
             <FaMapMarkerAlt className="text-blue-500 text-xl" />
-            <span className="text-lg">123 Tech Street, New York, USA</span>
+            <span className="text-lg">Cambridge Institute of Technology</span>
           </div>
 
           {/* Social Media Links */}

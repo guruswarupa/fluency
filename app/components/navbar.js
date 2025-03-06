@@ -1,24 +1,38 @@
-"use client";
-
+'use client'
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
-import Cookies from "js-cookie";
+import { useAuth } from "../context/AuthContext"; // Assuming the context is in the `context` folder
+import Cookies from "js-cookie"; // Import Cookies here
+import { useRouter } from "next/navigation"; // Import useRouter for redirection
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, logout } = useAuth(); // Use context here
+  const router = useRouter(); // Create router instance for navigation
 
-  // Check authentication status when the component mounts
+  // Function to check authentication status
+  const checkAuthStatus = () => {
+    if (typeof window !== "undefined") {
+      const authStatus = Cookies.get("isAuthenticated") === "true";
+      // If authStatus has changed, you may want to trigger a logout
+      if (!authStatus) {
+        logout(); // Make sure logout is triggered if cookies are removed/invalidated
+      }
+    }
+  };
+
+  // Check authentication status when the component mounts or cookies change
   useEffect(() => {
-    const authStatus = Cookies.get("isAuthenticated") === "true"; // assuming the cookie name is "isAuthenticated"
-    setIsAuthenticated(authStatus);
-  }, []);
+    checkAuthStatus();
+  }, []); // You can add cookies change listeners here if necessary
 
-  // Handle sign out
+  // Handle Sign Out and redirect
   const handleSignOut = () => {
+    logout(); // Perform logout action
     Cookies.remove("isAuthenticated"); // Remove the authentication cookie
-    setIsAuthenticated(false);
+    Cookies.remove("userEmail"); // Optionally, remove userEmail cookie
+    router.push("/"); // Redirect to the home page
   };
 
   return (
@@ -42,7 +56,7 @@ export default function Navbar() {
         </div>
 
         {/* Auth Buttons */}
-        <div className="hidden md:flex space-x-3 items-center">
+        <div className="hidden xl:flex space-x-3 items-center">
           {!isAuthenticated ? (
             <>
               <Link
@@ -70,7 +84,7 @@ export default function Navbar() {
 
         {/* Mobile Menu Toggle */}
         <button
-          className="md:hidden text-gray-800"
+          className="lg:hidden text-gray-800"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? <X size={28} /> : <Menu size={28} />}

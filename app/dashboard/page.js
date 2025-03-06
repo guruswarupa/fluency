@@ -18,6 +18,7 @@ import { FaMedal } from "react-icons/fa";
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import Dashboard from "../components/dashboard";
+import LanguageChallenges from "../components/challenges";
 
 // Registering required chart components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -172,12 +173,7 @@ function ChatAI() {
 
 function Challenges() {
   return (
-    <div>
-      <h2 className="text-2xl font-semibold">Challenges</h2>
-      <p className="text-gray-600 mt-2">
-        Take on daily challenges to test your skills.
-      </p>
-    </div>
+    <LanguageChallenges/>
   );
 }
 

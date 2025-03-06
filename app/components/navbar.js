@@ -48,9 +48,7 @@ export default function Navbar() {
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-5 ml-auto">
           <NavLink href="/" label="Home" />
-          <NavLink href="/learn" label="Learn" />
-          <NavLink href="/exercises" label="Exercises" />
-          <NavLink href="/chat-ai" label="AI Assistant" />
+          <NavLink href="/dashboard" label="Learn" />
           <NavLink href="/about" label="About" />
           <NavLink href="/contact" label="Contact" />
         </div>

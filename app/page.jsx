@@ -3,10 +3,14 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation"; 
 
 export default function HomePage() {
   const [isMounted, setIsMounted] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+
+  
+  const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
@@ -428,6 +432,7 @@ export default function HomePage() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.4 }}
           className="mt-8 px-8 py-4 bg-white text-indigo-600 font-bold rounded-full text-lg shadow-lg hover:bg-opacity-90 transition-all"
+          onClick={() => router.push("/dashboard")} // Redirect to dashboard
         >
           Begin Your Journey
         </motion.button>

@@ -13,6 +13,7 @@ import {
   Settings,
 } from "lucide-react";
 import Cookies from "js-cookie"; // Assuming you're using cookies for auth
+import AIChat from "../components/aichat";
 
 // Main Dashboard Component
 export default function Dashboard() {
@@ -157,10 +158,7 @@ function DashboardHome() {
 function ChatAI() {
   return (
     <div>
-      <h2 className="text-2xl font-semibold">AI Conversations</h2>
-      <p className="text-gray-600 mt-2">
-        Practice speaking with our AI language assistant.
-      </p>
+      <AIChat/>
     </div>
   );
 }

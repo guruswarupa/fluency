@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { MessageSquare, Upload, Mic, MicOff } from "lucide-react";
+import { MessageSquare, Upload, Mic, MicOff, Volume2 } from "lucide-react";
 
 export default function AIChat() {
   const [messages, setMessages] = useState([
@@ -16,6 +16,20 @@ export default function AIChat() {
   const [isRecording, setIsRecording] = useState(false);
   const chatContainerRef = useRef(null);
   const recognitionRef = useRef(null);
+
+  // Speech Synthesis (TTS) function
+  const speak = (text) => {
+    if ("speechSynthesis" in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US"; // Set language (adjust as needed)
+      utterance.volume = 1.0; // Volume (0.0 to 1.0)
+      utterance.rate = 1.0; // Speed (0.1 to 10)
+      utterance.pitch = 1.0; // Pitch (0 to 2)
+      window.speechSynthesis.speak(utterance); // Play the speech
+    } else {
+      console.warn("Text-to-Speech not supported in this browser.");
+    }
+  };
 
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -89,10 +103,8 @@ export default function AIChat() {
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error("Error:", error.message);
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Sorry, something went wrong: " + error.message },
-      ]);
+      const errorMessage = { role: "assistant", content: "Sorry, something went wrong: " + error.message };
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -142,10 +154,11 @@ export default function AIChat() {
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error("Error:", error.message);
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Failed to process the image or get a response: " + error.message },
-      ]);
+      const errorMessage = {
+        role: "assistant",
+        content: "Failed to process the image or get a response: " + error.message,
+      };
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -153,10 +166,11 @@ export default function AIChat() {
 
   const toggleRecording = () => {
     if (!recognitionRef.current) {
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "Voice input is not supported in this browser." },
-      ]);
+      const errorMessage = {
+        role: "assistant",
+        content: "Voice input is not supported in this browser.",
+      };
+      setMessages((prev) => [...prev, errorMessage]);
       return;
     }
 
@@ -169,77 +183,90 @@ export default function AIChat() {
   };
 
   return (
-        <div className="bg-white rounded-lg shadow-lg flex flex-col h-[80vh]">
-          <div className="bg-blue-600 text-white p-4 rounded-t-lg flex items-center">
-            <MessageSquare size={24} className="mr-2" />
-            <h3 className="text-lg font-semibold">Chat with FluentAI</h3>
-          </div>
-          <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-4">
-            {messages
-              .filter((msg) => msg.role !== "system")
-              .map((msg, index) => (
-                <div
-                  key={index}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+    <div className="bg-white rounded-lg shadow-lg flex flex-col h-[80vh]">
+      <div className="bg-blue-600 text-white p-4 rounded-t-lg flex items-center">
+        <MessageSquare size={24} className="mr-2" />
+        <h3 className="text-lg font-semibold">Chat with FluentAI</h3>
+      </div>
+      <div ref={chatContainerRef} className="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-4">
+        {messages
+          .filter((msg) => msg.role !== "system")
+          .map((msg, index) => (
+            <div
+              key={index}
+              className={`flex items-start ${
+                msg.role === "user" ? "justify-end" : "justify-start"
+              }`}
+            >
+              <div
+                className={`max-w-xs md:max-w-md p-3 rounded-lg shadow flex items-start space-x-2 ${
+                  msg.role === "user"
+                    ? "bg-blue-500 text-white"
+                    : "bg-white text-gray-800 border border-gray-200"
+                }`}
+              >
+                <div className="flex-1">
+                  <p className="whitespace-pre-wrap">{msg.content}</p>
+                  <span className="text-xs opacity-75 mt-1 block">
+                    {msg.role === "user" ? "You" : "AI"} •{" "}
+                    {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </div>
+                <button
+                  onClick={() => speak(msg.content)}
+                  className="p-1 text-gray-600 hover:text-blue-600 focus:outline-none"
+                  title="Listen to this message"
                 >
-                  <div
-                    className={`max-w-xs md:max-w-md p-3 rounded-lg shadow ${
-                      msg.role === "user" ? "bg-blue-500 text-white" : "bg-white text-gray-800 border border-gray-200"
-                    }`}
-                  >
-                    <p className="whitespace-pre-wrap">{msg.content}</p>
-                    <span className="text-xs opacity-75 mt-1 block">
-                      {msg.role === "user" ? "You" : "AI"} •{" "}
-                      {new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-white p-3 rounded-lg shadow border border-gray-200 text-gray-500">
-                  AI is thinking...
-                </div>
+                  <Volume2 size={18} />
+                </button>
               </div>
-            )}
+            </div>
+          ))}
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-white p-3 rounded-lg shadow border border-gray-200 text-gray-500">
+              AI is thinking...
+            </div>
           </div>
-          <div className="border-t bg-white p-4 flex items-center space-x-2">
+        )}
+      </div>
+      <div className="border-t bg-white p-4 flex items-center space-x-2">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+          placeholder="Type your message or speak for a translation..."
+          className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-800 text-gray-900"
+          disabled={isLoading}
+        />
+        <button
+          onClick={toggleRecording}
+          className={`p-2 rounded-lg ${
+            isRecording ? "bg-red-600 text-white hover:bg-red-700" : "bg-gray-600 text-white hover:bg-gray-700"
+          } disabled:bg-gray-400`}
+          disabled={isLoading}
+        >
+          {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+        </button>
+        <button
+          onClick={handleSendMessage}
+          className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+          disabled={isLoading}
+        >
+          <MessageSquare size={20} />
+        </button>
+        <label className="p-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 cursor-pointer">
+          <Upload size={20} />
           <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-            placeholder="Type your message or speak for a translation..."
-            className="flex-1 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-800 text-gray-900"
+            type="file"
+            accept="image/*"
+            onChange={handleFileUpload}
+            className="hidden"
             disabled={isLoading}
-            />
-            <button
-              onClick={toggleRecording}
-              className={`p-2 rounded-lg ${
-                isRecording ? "bg-red-600 text-white hover:bg-red-700" : "bg-gray-600 text-white hover:bg-gray-700"
-              } disabled:bg-gray-400`}
-              disabled={isLoading}
-            >
-              {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
-            </button>
-            <button
-              onClick={handleSendMessage}
-              className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
-              disabled={isLoading}
-            >
-              <MessageSquare size={20} />
-            </button>
-            <label className="p-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 cursor-pointer">
-              <Upload size={20} />
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-                disabled={isLoading}
-              />
-            </label>
-          </div>
-        </div>
+          />
+        </label>
+      </div>
+    </div>
   );
 }
